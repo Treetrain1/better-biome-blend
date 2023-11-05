@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[41,)"
+loaderVersion = "[48,)"
 issueTrackerURL = "https://github.com/FionaTheMortal/better-biome-blend/issues"
 license = "LGPL"
 
