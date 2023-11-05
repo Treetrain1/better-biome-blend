@@ -9,38 +9,30 @@ import java.util.concurrent.locks.StampedLock;
 
 public abstract class SliceCache<T extends Slice>
 {
-    public final static int BUCKET_COUNT = 8;
+    public static final int BUCKET_COUNT = 8;
 
     public final Long2ObjectLinkedOpenHashMap<T>[] hashList;
-    public final StampedLock[]                     lockList;
+    public final StampedLock[] lockList;
 
     public final int sliceCount;
-    public       int sliceSize;
+    public int sliceSize;
 
     public abstract T newSlice(int sliceSize, int salt);
 
-    public
-    SliceCache(int count)
-    {
+    public SliceCache(int count) {
         this.sliceCount = count;
 
         int countPerHash = count / BUCKET_COUNT;
 
         hashList = new Long2ObjectLinkedOpenHashMap[BUCKET_COUNT];
 
-        for (int hashIndex = 0;
-             hashIndex < BUCKET_COUNT;
-             ++hashIndex)
-        {
+        for (int hashIndex = 0; hashIndex < BUCKET_COUNT; ++hashIndex) {
             hashList[hashIndex] = new Long2ObjectLinkedOpenHashMap<>(countPerHash);
         }
 
         lockList = new StampedLock[BUCKET_COUNT];
 
-        for (int hashIndex = 0;
-             hashIndex < BUCKET_COUNT;
-             ++hashIndex)
-        {
+        for (int hashIndex = 0; hashIndex < BUCKET_COUNT; ++hashIndex) {
             lockList[hashIndex] = new StampedLock();
         }
     }
@@ -87,20 +79,14 @@ public abstract class SliceCache<T extends Slice>
     private int
     getBucketIndex(int x, int y, int z)
     {
-        int result = (x ^ y ^ z) & (BUCKET_COUNT - 1);
-
-        return result;
+        return (x ^ y ^ z) & (BUCKET_COUNT - 1);
     }
 
-    public final void
-    releaseSlice(T slice)
-    {
-        slice.release();;
+    public final void releaseSlice(T slice) {
+        slice.release();
     }
 
-    public final T
-    getOrInitSlice(int sliceSize, int sliceX, int sliceY, int sliceZ, int colorType, boolean tryLock)
-    {
+    public final T getOrInitSlice(int sliceSize, int sliceX, int sliceY, int sliceZ, int colorType, boolean tryLock) {
         long key = ColorCaching.getChunkKey(sliceX, sliceY, sliceZ, colorType);
 
         int bucket = getBucketIndex(sliceX, sliceY, sliceZ);
